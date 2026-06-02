@@ -1,0 +1,7 @@
+.build/
+AgentSupervisor.app/
+.DS_Store
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+.swiftpm/
