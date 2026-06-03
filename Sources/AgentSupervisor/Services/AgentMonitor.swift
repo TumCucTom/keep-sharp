@@ -98,6 +98,7 @@ final class AgentMonitor: ObservableObject {
                 if agent.name != displayName {
                     agent.name = displayName
                 }
+                agent.currentPath = info?.path
                 let idleDuration = now.timeIntervalSince(agent.lastChangedAt)
                 let newStatus: AgentStatus = idleDuration > idleThreshold ? .idle : .running
                 if newStatus != agent.status {
@@ -119,7 +120,8 @@ final class AgentMonitor: ObservableObject {
                     status: .running,
                     lastOutput: pane,
                     lastChangedAt: now,
-                    lastSeenAt: now
+                    lastSeenAt: now,
+                    currentPath: info?.path
                 ))
             }
         }

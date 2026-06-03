@@ -7,6 +7,7 @@ struct Agent: Identifiable, Equatable {
     var lastOutput: String
     var lastChangedAt: Date
     var lastSeenAt: Date
+    var currentPath: String?
 
     init(
         id: String,
@@ -14,7 +15,8 @@ struct Agent: Identifiable, Equatable {
         status: AgentStatus = .unknown,
         lastOutput: String = "",
         lastChangedAt: Date = .distantPast,
-        lastSeenAt: Date = .distantPast
+        lastSeenAt: Date = .distantPast,
+        currentPath: String? = nil
     ) {
         self.id = id
         self.name = name ?? id
@@ -22,5 +24,6 @@ struct Agent: Identifiable, Equatable {
         self.lastOutput = lastOutput
         self.lastChangedAt = lastChangedAt
         self.lastSeenAt = lastSeenAt
+        self.currentPath = currentPath
     }
 }

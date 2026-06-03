@@ -94,12 +94,29 @@ struct AgentCard: View {
         .padding(6)
         .background(
             RoundedRectangle(cornerRadius: 5)
-                .fill(isActive ? Color.accentColor.opacity(0.18) : Color.gray.opacity(0.07))
+                .fill(Self.folderTint(for: agent.currentPath))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 5)
+                .fill(isActive ? Color.accentColor.opacity(0.18) : Color.clear)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 5)
                 .stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 1)
         )
+    }
+
+    private static func folderTint(for path: String?) -> Color {
+        guard let path = path, !path.isEmpty else {
+            return Color.gray.opacity(0.07)
+        }
+        var hash: UInt64 = 1469598103934665603
+        for byte in path.utf8 {
+            hash ^= UInt64(byte)
+            hash = hash &* 1099511628211
+        }
+        let hue = Double(hash % 360) / 360.0
+        return Color(hue: hue, saturation: 0.35, brightness: 0.85).opacity(0.18)
     }
 
     @ViewBuilder
