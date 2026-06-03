@@ -5,10 +5,12 @@ import AppKit
 struct RealTerminalView: NSViewRepresentable {
     let tmuxSession: String
     let tmuxPath: String
+    let focusTrigger: Int
 
-    init(tmuxSession: String, tmuxPath: String = "/opt/homebrew/bin/tmux") {
+    init(tmuxSession: String, tmuxPath: String = "/opt/homebrew/bin/tmux", focusTrigger: Int = 0) {
         self.tmuxSession = tmuxSession
         self.tmuxPath = tmuxPath
+        self.focusTrigger = focusTrigger
     }
 
     func makeNSView(context: Context) -> LocalProcessTerminalView {
@@ -31,6 +33,14 @@ struct RealTerminalView: NSViewRepresentable {
             view.process?.terminate()
             startSession(view, session: tmuxSession)
             context.coordinator.currentSession = tmuxSession
+        }
+        if context.coordinator.lastFocusTrigger != focusTrigger {
+            context.coordinator.lastFocusTrigger = focusTrigger
+            DispatchQueue.main.async {
+                if let window = view.window {
+                    window.makeFirstResponder(view)
+                }
+            }
         }
     }
 
@@ -74,5 +84,6 @@ struct RealTerminalView: NSViewRepresentable {
 
     final class Coordinator {
         var currentSession: String = ""
+        var lastFocusTrigger: Int = -1
     }
 }

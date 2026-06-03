@@ -4,6 +4,8 @@ import SwiftTerm
 struct ActiveAgentView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @State private var prompt: String = ""
+    @State private var focusTrigger: Int = 0
+    @State private var hasAppeared: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -29,7 +31,7 @@ struct ActiveAgentView: View {
 
                 Divider()
 
-                RealTerminalView(tmuxSession: agent.id)
+                RealTerminalView(tmuxSession: agent.id, focusTrigger: focusTrigger)
             } else {
                 VStack {
                     Spacer()
@@ -38,6 +40,22 @@ struct ActiveAgentView: View {
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .onAppear {
+            if !hasAppeared, viewModel.activeAgent?.status == .idle {
+                focusTrigger += 1
+            }
+            hasAppeared = true
+        }
+        .onChange(of: viewModel.activeAgent?.status) { oldStatus, newStatus in
+            if oldStatus == .running && newStatus == .idle {
+                focusTrigger += 1
+            }
+        }
+        .onChange(of: viewModel.activeAgentID) { _, _ in
+            if viewModel.activeAgent?.status == .idle {
+                focusTrigger += 1
             }
         }
     }
