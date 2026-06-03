@@ -15,10 +15,19 @@ final class AppViewModel: ObservableObject {
 
     private let leetCode: LeetCodeService
     private let tmux: TmuxService
+    private let notifications: NotificationService
 
     init(leetCode: LeetCodeService = LeetCodeService(), tmux: TmuxService = TmuxService()) {
         self.leetCode = leetCode
         self.tmux = tmux
+        let notifications = NotificationService()
+        self.notifications = notifications
+        self.monitor = AgentMonitor(tmux: tmux, notifications: notifications)
+        notifications.onAgentClick = { [weak self] agentID in
+            Task { @MainActor in
+                self?.selectAgent(agentID)
+            }
+        }
     }
 
     func onAppear() {

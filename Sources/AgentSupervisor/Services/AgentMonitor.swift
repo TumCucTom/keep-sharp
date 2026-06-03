@@ -105,7 +105,8 @@ final class AgentMonitor: ObservableObject {
                         notifications.notify(
                             title: "Agent idle",
                             message: "Waiting for input",
-                            subtitle: agent.name
+                            subtitle: agent.name,
+                            agentID: agent.id
                         )
                     }
                     agent.status = newStatus
