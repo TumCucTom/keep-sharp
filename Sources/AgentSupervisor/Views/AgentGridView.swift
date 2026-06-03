@@ -82,9 +82,7 @@ struct AgentCard: View {
                     .font(.caption.bold())
                     .lineLimit(1)
                 Spacer()
-                Text(agent.status.displayName)
-                    .font(.system(size: 9))
-                    .foregroundStyle(.secondary)
+                statusLabel
             }
             Text(tailText)
                 .font(.system(size: 9.5, design: .monospaced))
@@ -102,6 +100,30 @@ struct AgentCard: View {
             RoundedRectangle(cornerRadius: 5)
                 .stroke(isActive ? Color.accentColor : Color.clear, lineWidth: 1)
         )
+    }
+
+    @ViewBuilder
+    private var statusLabel: some View {
+        if agent.status == .idle {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                let duration = max(0, context.date.timeIntervalSince(agent.lastChangedAt))
+                Text("idle \(Self.formatDuration(duration))")
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundStyle(.secondary)
+            }
+        } else {
+            Text(agent.status.displayName)
+                .font(.system(size: 9))
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private static func formatDuration(_ seconds: TimeInterval) -> String {
+        let total = Int(seconds)
+        if total < 60 { return "\(total)s" }
+        if total < 3600 { return "\(total / 60)m" }
+        if total < 86400 { return "\(total / 3600)h" }
+        return "\(total / 86400)d"
     }
 
     private var tailText: String {
