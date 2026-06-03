@@ -5,10 +5,21 @@ import WebKit
 
 @MainActor
 final class AppViewModel: ObservableObject {
-    @Published var monitor = AgentMonitor()
-    @Published var activeAgentID: String?
+    private static let activeAgentIDKey = "activeAgentID"
+    private static let currentURLKey = "currentURLString"
+
+    @Published var monitor: AgentMonitor
+    @Published var activeAgentID: String? {
+        didSet {
+            UserDefaults.standard.set(activeAgentID, forKey: Self.activeAgentIDKey)
+        }
+    }
     @Published var problems: [LeetCodeProblem] = []
-    @Published var currentURL: URL = URL(string: "https://leetcode.com/problemset/")!
+    @Published var currentURL: URL = URL(string: "https://leetcode.com/problemset/")! {
+        didSet {
+            UserDefaults.standard.set(currentURL.absoluteString, forKey: Self.currentURLKey)
+        }
+    }
     @Published var pendingNavigation: String = ""
     @Published var statusMessage: String = ""
     @Published var isLoadingProblems: Bool = false
@@ -28,6 +39,11 @@ final class AppViewModel: ObservableObject {
                 self?.selectAgent(agentID)
             }
         }
+        self.activeAgentID = UserDefaults.standard.string(forKey: Self.activeAgentIDKey)
+        if let savedURL = UserDefaults.standard.string(forKey: Self.currentURLKey),
+           let url = URL(string: savedURL) {
+            self.currentURL = url
+        }
     }
 
     func onAppear() {
@@ -35,8 +51,10 @@ final class AppViewModel: ObservableObject {
         if problems.isEmpty {
             Task { await loadProblems() }
         }
-        if activeAgentID == nil, let first = monitor.agents.first {
-            activeAgentID = first.id
+        if let id = activeAgentID, !monitor.agents.contains(where: { $0.id == id }) {
+            activeAgentID = monitor.agents.first?.id
+        } else if activeAgentID == nil {
+            activeAgentID = monitor.agents.first?.id
         }
     }
 
